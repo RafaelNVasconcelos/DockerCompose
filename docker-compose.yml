@@ -1,0 +1,39 @@
+version: "3.9"
+services:
+  dbdefen:
+    image: postgres #Imagem mais recente, se caso necessário incluir o número da versão ao lado do nome
+    restart: always
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+    environment: 
+      - POSTGRES_PASSWORD=novapassword #Substituir pela senha desejada
+      - POSTGRES_DB=openproject #Nome padrão, mas pode ser modificado
+    volumes:
+      - data:/var/lib/postgresql/data
+      - type: tmpfs
+        target: /dev/shm
+    networks:
+      - backend
+
+  openproject:
+    image: openproject/community:13
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      - OPENPROJECT_HOST__NAME=10.77.39.63:8080 #Hostname deve ser alterado para o IP atual
+      - OPENPROJECT_SECRET_KEY_BASE=secret #Substituir pela senha desejada
+      - OPENPROJECT_HTTPS=false
+    volumes:
+      - /var/lib/openproject/pgdata:/var/openproject/pgdata
+      - /var/lib/openproject/assets:/var/openproject/assets
+    networks:
+      - backend
+
+volumes:
+  data:
+    driver: local
+
+networks:
+  backend:
